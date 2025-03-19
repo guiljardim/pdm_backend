@@ -1,13 +1,18 @@
-FROM gradle:7.6.1-jdk17
+FROM gradle:7.6.1-jdk17 as builder
 
 WORKDIR /app
 COPY . .
 
-RUN gradle build -x test
+RUN gradle jar
 
-RUN find build/classes/kotlin/main -type f | sort
+RUN ls -la build/libs/
+
+FROM openjdk:17-slim
+
+WORKDIR /app
+COPY --from=builder /app/build/libs/*.jar app.jar
 
 EXPOSE 8080
 ENV PORT=8080
 
-CMD ["sh", "-c", "java -cp build/classes/kotlin/main org.example.ApplicationKt"]
+CMD ["java", "-jar", "app.jar"]
