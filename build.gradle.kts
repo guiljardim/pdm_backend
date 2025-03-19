@@ -10,7 +10,6 @@ plugins {
     id("io.ktor.plugin") version "2.2.3"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.0"
     application
-    id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 group = "com.peladamanager"
@@ -29,16 +28,6 @@ repositories {
 
 kotlin {
     jvmToolchain(17)
-}
-
-tasks.withType<com.github.johnrengelman.shadow.tasks.ShadowJar> {
-    manifest {
-        attributes(
-            mapOf(
-                "Main-Class" to "ApplicationKt"
-            )
-        )
-    }
 }
 
 dependencies {
