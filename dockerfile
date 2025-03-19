@@ -10,4 +10,4 @@ RUN find build/classes/kotlin/main -type f | sort
 EXPOSE 8080
 ENV PORT=8080
 
-CMD ["sh", "-c", "java -cp build/classes/kotlin/main ApplicationKt"]
+CMD ["sh", "-c", "java -cp build/classes/kotlin/main org.example.ApplicationKt"]

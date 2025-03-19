@@ -16,7 +16,7 @@ group = "com.peladamanager"
 version = "0.0.1"
 
 application {
-    mainClass.set("ApplicationKt")
+    mainClass.set("org.example.ApplicationKt")
 
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
