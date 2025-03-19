@@ -10,13 +10,14 @@ plugins {
     id("io.ktor.plugin") version "2.2.3"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.0"
     application
+    id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 group = "com.peladamanager"
 version = "0.0.1"
 
 application {
-    mainClass.set("com.peladamanager.ApplicationKt")
+    mainClass.set("ApplicationKt")
 
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
@@ -27,12 +28,16 @@ repositories {
 }
 
 kotlin {
-    jvmToolchain(17) // Ou use 11 se preferir uma versão mais antiga
+    jvmToolchain(17)
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions {
-        jvmTarget = "17" // Deve corresponder ao jvmToolchain acima
+tasks.withType<com.github.johnrengelman.shadow.tasks.ShadowJar> {
+    manifest {
+        attributes(
+            mapOf(
+                "Main-Class" to "ApplicationKt"
+            )
+        )
     }
 }
 

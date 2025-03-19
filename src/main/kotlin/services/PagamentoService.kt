@@ -1,9 +1,10 @@
 package org.example.services
 
-import com.peladamanager.database.DatabaseFactory.dbQuery
-import com.peladamanager.database.tables.PagamentosTable
-import com.peladamanager.models.Pagamento
-import com.peladamanager.models.StatusPagamento
+
+import models.Pagamento
+import models.StatusPagamento
+import org.example.database.DatabaseFactory.dbQuery
+import org.example.database.tables.PagamentosTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import java.time.LocalDateTime
