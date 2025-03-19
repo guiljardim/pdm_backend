@@ -28,22 +28,14 @@ object DatabaseFactory {
         val config = HikariConfig()
         config.driverClassName = "org.postgresql.Driver"
 
-        // Veja se estamos rodando no Render (verificando a existência de uma variável de ambiente específica)
-        val isRender = System.getenv("RENDER") != null
+        val databaseUrl = System.getenv("DATABASE_URL")
+            ?: "postgresql://fdm_db_user:4vRl9uTv7PeJlcGTJVTV3A9kkjJA7TNC@dpg-cvd3lc3v2p9s73cb5hl0-a.oregon-postgres.render.com/fdm_db"
 
-        if (isRender) {
-            // Configuração para o ambiente Render
-            val host = "dpg-cvd31c3v2p9s73cb5hl0-a"
-            val port = "5432"
-            val database = "fdm_db"
-            val username = "fdm_db_user"
-            val password = System.getenv("POSTGRES_PASSWORD") ?: "4vRl9uTv7PeJlcGTJVTV3A9kkjJA7TNC"
+        if (System.getenv("RENDER") != null || databaseUrl.contains("render.com")) {
+            val jdbcUrl = databaseUrl.replace("postgresql://", "jdbc:postgresql://")
 
-            config.jdbcUrl = "jdbc:postgresql://$host:$port/$database"
-            config.username = username
-            config.password = password
+            config.jdbcUrl = jdbcUrl
         } else {
-            // Configuração para ambiente local
             config.jdbcUrl = "jdbc:postgresql://localhost:5432/peladamanager"
             config.username = "fdm_db_user"
             config.password = "4vRl9uTv7PeJlcGTJVTV3A9kkjJA7TNC"
