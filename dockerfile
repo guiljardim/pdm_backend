@@ -1,19 +1,18 @@
-FROM gradle:7.6.1-jdk17 as builder
-
+# Etapa de construção
+FROM gradle:7.6.1-jdk17 AS builder
 WORKDIR /app
 COPY . .
 
-RUN echo "Main-Class: org.example.ApplicationKt" > MANIFEST.MF
-RUN gradle -q build -x test
+# Garante que o build falhe se houver erro
+RUN gradle clean build -x test --no-daemon
 
-RUN mkdir -p build/libs/dependencies
-RUN cd build/libs/dependencies && jar -xf ../fdm-*.jar
-RUN cd build/libs && jar -cvfm app.jar ../../MANIFEST.MF -C dependencies .
+# Renomeia para um nome fixo e copia diretamente para a próxima etapa
+RUN cp build/libs/fdm-all.jar /app/app.jar
 
+# Etapa final para rodar o app
 FROM openjdk:17-slim
-
 WORKDIR /app
-COPY --from=builder /app/build/libs/app.jar app.jar
+COPY --from=builder /app/app.jar app.jar
 
 EXPOSE 8080
 ENV PORT=8080
