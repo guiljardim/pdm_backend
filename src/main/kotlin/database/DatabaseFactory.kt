@@ -28,14 +28,15 @@ object DatabaseFactory {
         val config = HikariConfig()
         config.driverClassName = "org.postgresql.Driver"
         config.jdbcUrl = System.getenv("JDBC_DATABASE_URL") ?: "jdbc:postgresql://localhost:5432/peladamanager"
-        config.username = System.getenv("JDBC_DATABASE_USERNAME") ?: "postgres"
-        config.password = System.getenv("JDBC_DATABASE_PASSWORD") ?: "postgres"
+        config.username = System.getenv("JDBC_DATABASE_USERNAME") ?: "fdm_db_user"
+        config.password = System.getenv("JDBC_DATABASE_PASSWORD") ?: "4vRl9uTv7PeJlcGTJVTV3A9kkjJA7TNC"
         config.maximumPoolSize = 3
         config.isAutoCommit = false
         config.transactionIsolation = "TRANSACTION_REPEATABLE_READ"
         config.validate()
         return HikariDataSource(config)
     }
+
 
     suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block() }
