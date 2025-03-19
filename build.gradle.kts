@@ -26,6 +26,16 @@ repositories {
     mavenCentral()
 }
 
+tasks.withType<Jar> {
+    manifest {
+        attributes(
+            mapOf(
+                "Main-Class" to "org.example.ApplicationKt"
+            )
+        )
+    }
+}
+
 kotlin {
     jvmToolchain(17)
 }

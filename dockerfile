@@ -3,14 +3,17 @@ FROM gradle:7.6.1-jdk17 as builder
 WORKDIR /app
 COPY . .
 
-RUN gradle jar
+RUN echo "Main-Class: org.example.ApplicationKt" > MANIFEST.MF
+RUN gradle -q build -x test
 
-RUN ls -la build/libs/
+RUN mkdir -p build/libs/dependencies
+RUN cd build/libs/dependencies && jar -xf ../fdm-*.jar
+RUN cd build/libs && jar -cvfm app.jar ../../MANIFEST.MF -C dependencies .
 
 FROM openjdk:17-slim
 
 WORKDIR /app
-COPY --from=builder /app/build/libs/*.jar app.jar
+COPY --from=builder /app/build/libs/app.jar app.jar
 
 EXPOSE 8080
 ENV PORT=8080
