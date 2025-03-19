@@ -27,13 +27,15 @@ repositories {
 }
 
 tasks.withType<Jar> {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
     manifest {
-        attributes(
-            mapOf(
-                "Main-Class" to "org.example.ApplicationKt"
-            )
-        )
+        attributes["Main-Class"] = "org.example.ApplicationKt"
     }
+
+    from({
+        configurations.runtimeClasspath.get().filter { it.exists() }.map { if (it.isDirectory) it else zipTree(it) }
+    })
 }
 
 kotlin {
