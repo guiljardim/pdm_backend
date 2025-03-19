@@ -27,16 +27,34 @@ object DatabaseFactory {
     private fun hikari(): HikariDataSource {
         val config = HikariConfig()
         config.driverClassName = "org.postgresql.Driver"
-        config.jdbcUrl = System.getenv("JDBC_DATABASE_URL") ?: "jdbc:postgresql://localhost:5432/peladamanager"
-        config.username = System.getenv("JDBC_DATABASE_USERNAME") ?: "fdm_db_user"
-        config.password = System.getenv("JDBC_DATABASE_PASSWORD") ?: "4vRl9uTv7PeJlcGTJVTV3A9kkjJA7TNC"
+
+        // Veja se estamos rodando no Render (verificando a existência de uma variável de ambiente específica)
+        val isRender = System.getenv("RENDER") != null
+
+        if (isRender) {
+            // Configuração para o ambiente Render
+            val host = "dpg-cvd31c3v2p9s73cb5hl0-a"
+            val port = "5432"
+            val database = "fdm_db"
+            val username = "fdm_db_user"
+            val password = System.getenv("POSTGRES_PASSWORD") ?: "4vRl9uTv7PeJlcGTJVTV3A9kkjJA7TNC"
+
+            config.jdbcUrl = "jdbc:postgresql://$host:$port/$database"
+            config.username = username
+            config.password = password
+        } else {
+            // Configuração para ambiente local
+            config.jdbcUrl = "jdbc:postgresql://localhost:5432/peladamanager"
+            config.username = "fdm_db_user"
+            config.password = "4vRl9uTv7PeJlcGTJVTV3A9kkjJA7TNC"
+        }
+
         config.maximumPoolSize = 3
         config.isAutoCommit = false
         config.transactionIsolation = "TRANSACTION_REPEATABLE_READ"
         config.validate()
         return HikariDataSource(config)
     }
-
 
     suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block() }
