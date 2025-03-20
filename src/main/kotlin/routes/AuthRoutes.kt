@@ -9,6 +9,9 @@ import models.LoginRequest
 import models.LoginResponse
 import models.User
 import org.example.services.AuthService
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
+import java.util.Date
 
 private val authService = AuthService()
 
@@ -23,14 +26,21 @@ fun Route.authRoutes() {
                 return@post
             }
 
-            val token = "fake-jwt-token"
+            val token = JWT.create()
+                .withAudience("varzino")
+                .withIssuer("varzinoApp")
+                .withClaim("username", user.username)
+                .withClaim("userId", user.id)
+                .withExpiresAt(Date(System.currentTimeMillis() + 6000000)) // expira em ~100 minutos
+                .sign(Algorithm.HMAC256("sua-chave-secreta"))
 
-            call.respond(LoginResponse(token, user))
+            call.respond(LoginResponse(token, user.copy(password = "")))
         }
 
         post("/register") {
             val user = call.receive<User>()
-            call.respond(HttpStatusCode.Created, authService.createUser(user))
+            val createdUser = authService.createUser(user)
+            call.respond(HttpStatusCode.Created, createdUser.copy(password = ""))
         }
     }
 }
