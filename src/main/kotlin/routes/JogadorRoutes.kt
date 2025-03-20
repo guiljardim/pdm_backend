@@ -73,5 +73,22 @@ fun Route.jogadorRoutes() {
         get("/mensalistas") {
             call.respond(jogadorService.getMensalistas())
         }
+
+        // Nova rota adicionada agora:
+        get("/usuario/{id}") {
+            val userId = call.parameters["id"]?.toIntOrNull()
+            if (userId == null) {
+                call.respond(HttpStatusCode.BadRequest, "ID de usuário inválido")
+                return@get
+            }
+
+            val jogador = jogadorService.getJogadorByUserId(userId)
+            if (jogador == null) {
+                call.respond(HttpStatusCode.NotFound, "Jogador não encontrado para esse usuário")
+                return@get
+            }
+
+            call.respond(jogador)
+        }
     }
 }
