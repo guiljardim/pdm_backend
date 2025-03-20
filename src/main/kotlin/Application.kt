@@ -33,12 +33,15 @@ fun Application.module() {
 
     install(CORS) {
         anyHost()
-        allowHeader("Content-Type")
+        allowHeader(HttpHeaders.ContentType)
+        allowHeader(HttpHeaders.Authorization)
         allowMethod(HttpMethod.Options)
         allowMethod(HttpMethod.Put)
         allowMethod(HttpMethod.Delete)
         allowMethod(HttpMethod.Patch)
     }
+
+    configureSecurity()
 
     routing {
         get("/") {
@@ -49,16 +52,20 @@ fun Application.module() {
             API está funcionando corretamente!
             
             Endpoints disponíveis:
-            - /jogadores
-            - /pagamentos
+            - /jogadores (autenticado)
+            - /pagamentos (autenticado)
             - /auth/login
             """.trimIndent(),
                 ContentType.Text.Plain
             )
         }
+
         authRoutes()
-        jogadorRoutes()
-        pagamentoRoutes()
+
+        authenticate("auth-jwt") {
+            jogadorRoutes()
+            pagamentoRoutes()
+        }
     }
 }
 
@@ -74,7 +81,10 @@ fun Application.configureSecurity() {
                     .build()
             )
             validate { credential ->
-                if (credential.payload.getClaim("username").asString() != "") JWTPrincipal(credential.payload) else null
+                if (credential.payload.getClaim("username").asString().isNotEmpty())
+                    JWTPrincipal(credential.payload)
+                else
+                    null
             }
         }
     }
