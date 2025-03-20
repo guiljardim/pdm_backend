@@ -57,6 +57,13 @@ class JogadorService {
         }.map { it.toJogador() }
     }
 
+    // Nova função adicionada agora:
+    suspend fun getJogadorByUserId(userId: Int): Jogador? = dbQuery {
+        JogadoresTable.select { JogadoresTable.id eq userId }
+            .map { it.toJogador() }
+            .singleOrNull()
+    }
+
     private fun ResultRow.toJogador() = Jogador(
         id = this[JogadoresTable.id],
         nome = this[JogadoresTable.nome],
