@@ -9,7 +9,8 @@ data class User(
     val password: String,
     val nome: String,
     val email: String,
-    val role: Role = Role.JOGADOR
+    val role: Role = Role.JOGADOR,
+    val jogadorId: Int? = null
 )
 
 enum class Role {
@@ -24,6 +25,7 @@ data class LoginRequest(
 
 @Serializable
 data class LoginResponse(
+    val user: User,
     val token: String,
-    val user: User
+    val jogador: Jogador?
 )

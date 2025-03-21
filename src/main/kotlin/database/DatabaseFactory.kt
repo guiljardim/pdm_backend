@@ -10,17 +10,19 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
+import javax.sql.DataSource
+import org.flywaydb.core.Flyway
 
 object DatabaseFactory {
     fun init() {
-        // Conectar ao banco de dados
-        val database = Database.connect(hikari())
+        val dataSource = hikari()
 
-        // Criar tabelas
+        FlywayMigrations.migrate(dataSource)
+
+        val database = Database.connect(dataSource)
+
         transaction(database) {
-            SchemaUtils.create(JogadoresTable)
-            SchemaUtils.create(PagamentosTable)
-            SchemaUtils.create(UsersTable)
+            SchemaUtils.createMissingTablesAndColumns(JogadoresTable, PagamentosTable, UsersTable)
         }
     }
 
@@ -32,7 +34,8 @@ object DatabaseFactory {
             ?: "postgresql://fdm_db_user:4vRl9uTv7PeJlcGTJVTV3A9kkjJA7TNC@dpg-cvd3lc3v2p9s73cb5hl0-a.oregon-postgres.render.com/fdm_db"
 
         if (System.getenv("RENDER") != null || databaseUrl.contains("render.com")) {
-            val regex = Regex("postgres(?:ql)?:\\/\\/(?<user>[^:]+):(?<password>[^@]+)@(?<host>[^:/]+)(:(?<port>\\d+))?/(?<database>.+)")
+            val regex =
+                Regex("postgres(?:ql)?:\\/\\/(?<user>[^:]+):(?<password>[^@]+)@(?<host>[^:/]+)(:(?<port>\\d+))?/(?<database>.+)")
             val matchResult = regex.matchEntire(databaseUrl)
 
             if (matchResult != null) {
@@ -64,4 +67,14 @@ object DatabaseFactory {
 
     suspend fun <T> dbQuery(block: suspend () -> T): T =
         newSuspendedTransaction(Dispatchers.IO) { block() }
+
+    object FlywayMigrations {
+        fun migrate(dataSource: DataSource) {
+            Flyway.configure()
+                .dataSource(dataSource)
+                .baselineOnMigrate(true)
+                .load()
+                .migrate()
+        }
+    }
 }
